@@ -1,0 +1,358 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <title>Untitled Document</title>
+    <style type="text/css">
+        #wrapper
+        {
+            margin: 1px auto;
+            padding: 0;
+            max-width: 960px;
+            min-width: 500px;
+            height: 960px;
+            background-color: #eee;
+            border: 1px solid #444;
+        }
+        .container
+        {
+            position: relative;
+            top: 0px;
+            left: 0px;
+        }
+        .box
+        {
+            background-color: White;
+            position: absolute;
+            border: 1px solid #444;
+            padding: 5px 5px 5px 5px;
+        }
+        .box1
+        {
+            background-color: red;
+        }
+        .box2
+        {
+            background-color: blue;
+        }
+        .box3
+        {
+            background-color: green;
+        }
+        .box4
+        {
+            background-color: yellow;
+        }
+        .box5
+        {
+            background-color: gray;
+        }
+        /* http://sonspring.com/journal/clearing-floats */.clear
+        {
+            clear: both;
+            display: block;
+            overflow: hidden;
+            visibility: hidden;
+            width: 0;
+            height: 0;
+        }
+        /* http://www.yuiblog.com/blog/2010/09/27/clearfix-reloaded-overflowhidden-demystified */.clearfix:before, .clearfix:after, .container_12:before, .container_12:after, .container_16:before, .container_16:after
+        {
+            content: '.';
+            display: block;
+            overflow: hidden;
+            visibility: hidden;
+            font-size: 0;
+            line-height: 0;
+            width: 0;
+            height: 0;
+        }
+        .clearfix:after, .container_12:after, .container_16:after
+        {
+            clear: both;
+        }
+        /*
+  The following zoom:1 rule is specifically for IE6 + IE7.
+  Move to separate stylesheet if invalid CSS is a problem.
+*/.clearfix, .container_12, .container_16
+        {
+            zoom: 1;
+        }
+    </style>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript">
+    //box object constructor
+function box() {
+    if(!(this instanceof box)) {
+       return new box();
+       }
+    this.width=0;
+    this.height=0;
+    this.left=0;
+    this.right=0;
+    this.bottom=0;
+    this.top=0;
+    this.setLeft=function(val){ this.left=val;this.right=this.left+this.width;};
+    this.setTop=function(val){ this.top=val; this.bottom=this.top+this.height;};
+
+       this.id='';
+	   this.onrow=0;
+	   this.html = '';
+	   this.getHtml= function () {
+	       return '<div class="box" id="'+this.id+'" style="position:absolute; top:' + this.top + 'px; left:' + this.left + 'px; width:' + this.width + 'px; height:' + this.height + 'px;">' + this.html + '</div>';
+	   };
+	   this.toString=function() {
+		return "id="+this.id+" left="+this.left+" top="+this.top+" right="+this.right+" bottom="+this.bottom;
+	   };
+    this.reset = function () {
+		////console.log("reseting");
+        this.left = 0, this.top = 0, this.bottom=0,this.right=0, this.onrow = 0;
+    };
+};
+//boxmanager constructor function
+var boxManager = function (containerID) {
+    var boxes = [],
+        iter = 0,
+		iterBox = {},
+        margin = 10,
+        containerWidth = 960,
+        containerHeight = 540,
+        currentX = 0,
+        currentY = 0,
+        addToX = 0,
+        addToY = 0,
+		nextAddToY = margin,
+        currentID = 0,
+        container = document.getElementById("container"),
+		shiftDown = false,
+		onRow = 0,
+		nextRow = 0,
+        tempbox = {},
+        l = function (text) { console.log(text); },
+		getID = function () {
+			return (currentID++).toString();
+		},
+		getTopYForBox = function (thisBox) {
+
+		    //get the bottom y for boxes where left is less than left+ margin
+		    //and right is greater than left
+		    if (thisBox.onrow === 0) { return margin; }
+		    var len = boxes.length,
+				maxY = 0;
+		    iter = 0;
+		    for (; iter < len; iter += 1) {
+		        iterBox = boxes[iter];
+		        if (iterBox.onrow < thisBox.onrow) {
+		            //if the box we're looking at's left edge is in be
+		            		            if (thisBox.left >= iterBox.left && thisBox.left + margin <= iterBox.left + iterBox.width) {
+		            		                if (iterBox.height + iterBox.top > maxY) {
+		            		                    maxY = iterBox.height + iterBox.top;
+		            		                }
+		            		            }
+		            		            if (thisBox.right + margin >= iterBox.left && thisBox.right + margin <= iterBox.right) {
+		            		                if (iterBox.height + iterBox.top > maxY) {
+		            		                    maxY = iterBox.height + iterBox.top;
+		            		                }
+		            		            }
+		        }
+
+		    }
+		    return maxY + margin * 2;
+			
+		},
+        getBoundingBoxesFor = function (baseBox, basis,secondarybasis,recurse) {
+            /*
+			var len = boxes.length,
+                compliment = {
+                    left: "right",
+                    top: "bottom",
+                    right: "left",
+                    bottom: "top"
+                },
+                antibasis=compliment[basis],
+                antisecondarybasis=compliment[secondarybasis],
+            maxBasis = 0;
+            iter = 0;
+            for (; iter < len; iter += 1) {
+                compBox = boxes[iter];
+                    //if the base box's top is less than base box's bottom
+                    //if the base box's left is less than comparison's box's left
+                    //or 
+                    if(baseBox[secondarybasis] < compBox[antisecondarybasis] && ( baseBox[basis] <= compBox[basis] && basebox[antibasis]<=compBox[antibasis])){
+                        if (iterBox.height + iterBox.top > maxY) {
+                            maxY = iterBox.height + iterBox.top;
+                        }
+                    }
+                }
+                return maxY + margin * 2;
+            }
+            */
+        },
+		process=function(item) {
+			var i=0,
+			boxlen=boxes.length
+			tbox={},
+			//winnerbox={},
+			maxy=margin;
+			for(;i<boxlen;i+=1) {
+				tbox=boxes[i];
+				if((tbox.bottom +margin) > maxy && ((tbox.right > item.left-margin && tbox.right< item.right+margin) || (tbox.left > item.left-margin && tbox.left < item.right+margin) || (tbox.left <item.left && tbox.right > item.left))) {
+					//////console.log("using maxy from "+tbox.toString()+ " for " +item.toString());
+					maxy=tbox.bottom + margin;
+					//winnerbox=boxes[i];
+				}
+			}
+			////console.log("using maxy from "+winnerbox.toString()+ " for " +item.toString());
+			return maxy+margin;
+		},
+        resetPaint = function () {
+            //l("resetpaint");
+			var i=0,
+			boxlength=boxes.length;
+			for(;i<boxlength;i+=1) {
+				boxes[i].reset();
+			}
+            addToX = 0, addToY = 0, onRow = 0, nextRow = 0,
+            containerWidth = $(container).width();
+			
+        },
+    calculateBounds = function (newbox) {
+        //l("calculateBounds");
+        if (addToX === 0 && addToX !== margin) {
+            addToX = margin;
+        }
+        if ((addToX + newbox.width + margin*2) > containerWidth) {
+            addToX = margin;
+            onRow += 1;
+        }
+        if (onRow === nextRow) {
+            if (newbox.height + addToY > nextAddToY) {
+                nextAddToY = newbox.height + addToY;
+            }
+        }
+        if (onRow !== nextRow) {
+            nextRow += 1;
+            addToY = nextAddToY + margin * 2;
+        }
+        newbox.onrow = onRow;
+        newbox.setLeft(addToX);
+        //newbox.setTop(getTopYForBox(newbox));
+		newbox.setTop(process(newbox));
+        addToX = newbox.left + newbox.width + margin * 2;
+        return newbox;
+    },
+        addBox = function (newbox) {
+            //newbox = calculateBounds(newbox);
+            boxes.push(newbox);
+
+        },
+    boxFactory = function (defaults) {
+        tempbox = new box();
+        if (defaults !== 'undefined') {
+            tempbox = $.extend(tempbox, defaults);
+        }
+        tempbox.id = currentID;
+        currentID += 1;
+        return tempbox;
+    },
+    render = function () {
+        var boxlength = boxes.length,
+        $container = $(container);
+        $container.html("");
+        for (iter = 0; iter < boxlength; iter += 1) {
+            $container.append(boxes[iter].getHtml());
+        }
+		$container.find("div").hide().show("slow");
+    },
+    paint = function () {
+        //l("paint");
+        var i = 0,
+        boxlength = boxes.length;
+        resetPaint();
+        for (; i < boxlength; i += 1) {
+            calculateBounds(boxes[i]);
+        }
+        render();
+    };
+
+    //return functions we select as the public api, not the private data
+    return {
+        addBox: addBox,
+        boxFactory: boxFactory,
+        paint: paint,
+		boxes:boxes
+    };
+
+};
+
+$(function () {
+    var bm = new boxManager('container'),
+    box = {},
+    iter = 0;
+    window.bm = bm;
+    for (; iter < 20; iter += 1) {
+
+    }
+    var abox = bm.boxFactory({ width: 100, height: 200, html: "<p>1 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 130, height: 50, html: "<p>2 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 55, height: 55, html: "<p>3 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 300, height: 200, html: "<p>4 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 125, height: 250, html: "<p>5 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 55, height: 125, html: "<p>6 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 55, height: 125, html: "<p>7 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 55, height: 125, html: "<p>8 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 130, height: 50, html: "<p>9 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 325, height: 250, html: "<p>10 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 55, height: 55, html: "<p>11 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 125, height: 250, html: "<p>12 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 130, height: 50, html: "<p>13 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 55, height: 55, html: "<p>14 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 300, height: 200, html: "<p>15 hi</p>" });
+    bm.addBox(abox);
+
+    abox = bm.boxFactory({ width: 125, height: 250, html: "<p>16 hi</p>" });
+    bm.addBox(abox);
+
+    bm.paint();
+	
+    $(window).resize(bm.paint);
+})
+
+
+		</script>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="container" class="container">
+        </div>
+    </div>
+</body>
+</html>
