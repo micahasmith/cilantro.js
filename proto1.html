@@ -2,13 +2,13 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-    <title>Untitled Document</title>
+    <title>Proto1</title>
     <style type="text/css">
         p,h1,h2,h3,h4,h5,input,em,strong{font-family: Tahoma, Helvetica, Arial, Sans-Serif;}
         .header
         {
             font-size:70px;
-            color: #222;
+            color: #555;
             text-shadow: 0px 2px 3px #555;
         }
         .page 
@@ -94,6 +94,7 @@
         }
     </style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
     <script type="text/javascript">
     //box object constructor
 function box() {
@@ -125,7 +126,10 @@ function box() {
 };
 //boxmanager constructor function
 var boxManager = function (containerID) {
+    //an array that contains at index 0 the base data
+    //at other indexes, rendered versions of the base data
     var boxes = [],
+        currentIndex = 0,
         iter = 0,
 		iterBox = {},
         margin = 10,
@@ -144,98 +148,98 @@ var boxManager = function (containerID) {
         tempbox = {},
         l = function (text) { console.log(text); },
 		getID = function () {
-			return (currentID++).toString();
+		    return (currentID++).toString();
 		},
-		getTopYForBox = function (thisBox) {
+		getTopYForBox = function (thetheboxes, thisBox) {
 
-		    //get the bottom y for boxes where left is less than left+ margin
+		    //get the bottom y for theboxes where left is less than left+ margin
 		    //and right is greater than left
 		    if (thisBox.onrow === 0) { return margin; }
-		    var len = boxes.length,
+		    var len = theboxes.length,
 				maxY = 0;
 		    iter = 0;
 		    for (; iter < len; iter += 1) {
-		        iterBox = boxes[iter];
+		        iterBox = theboxes[iter];
 		        if (iterBox.onrow < thisBox.onrow) {
 		            //if the box we're looking at's left edge is in be
-		            		            if (thisBox.left >= iterBox.left && thisBox.left + margin <= iterBox.left + iterBox.width) {
-		            		                if (iterBox.height + iterBox.top > maxY) {
-		            		                    maxY = iterBox.height + iterBox.top;
-		            		                }
-		            		            }
-		            		            if (thisBox.right + margin >= iterBox.left && thisBox.right + margin <= iterBox.right) {
-		            		                if (iterBox.height + iterBox.top > maxY) {
-		            		                    maxY = iterBox.height + iterBox.top;
-		            		                }
-		            		            }
+		            if (thisBox.left >= iterBox.left && thisBox.left + margin <= iterBox.left + iterBox.width) {
+		                if (iterBox.height + iterBox.top > maxY) {
+		                    maxY = iterBox.height + iterBox.top;
+		                }
+		            }
+		            if (thisBox.right + margin >= iterBox.left && thisBox.right + margin <= iterBox.right) {
+		                if (iterBox.height + iterBox.top > maxY) {
+		                    maxY = iterBox.height + iterBox.top;
+		                }
+		            }
 		        }
 
 		    }
 		    return maxY + margin * 2;
-			
+
 		},
-        getBoundingBoxesFor = function (baseBox, basis,secondarybasis,recurse) {
+        getBoundingBoxesFor = function (baseBox, basis, secondarybasis, recurse) {
             /*
-			var len = boxes.length,
-                compliment = {
-                    left: "right",
-                    top: "bottom",
-                    right: "left",
-                    bottom: "top"
-                },
-                antibasis=compliment[basis],
-                antisecondarybasis=compliment[secondarybasis],
+            var len = boxes.length,
+            compliment = {
+            left: "right",
+            top: "bottom",
+            right: "left",
+            bottom: "top"
+            },
+            antibasis=compliment[basis],
+            antisecondarybasis=compliment[secondarybasis],
             maxBasis = 0;
             iter = 0;
             for (; iter < len; iter += 1) {
-                compBox = boxes[iter];
-                    //if the base box's top is less than base box's bottom
-                    //if the base box's left is less than comparison's box's left
-                    //or 
-                    if(baseBox[secondarybasis] < compBox[antisecondarybasis] && ( baseBox[basis] <= compBox[basis] && basebox[antibasis]<=compBox[antibasis])){
-                        if (iterBox.height + iterBox.top > maxY) {
-                            maxY = iterBox.height + iterBox.top;
-                        }
-                    }
-                }
-                return maxY + margin * 2;
+            compBox = boxes[iter];
+            //if the base box's top is less than base box's bottom
+            //if the base box's left is less than comparison's box's left
+            //or 
+            if(baseBox[secondarybasis] < compBox[antisecondarybasis] && ( baseBox[basis] <= compBox[basis] && basebox[antibasis]<=compBox[antibasis])){
+            if (iterBox.height + iterBox.top > maxY) {
+            maxY = iterBox.height + iterBox.top;
+            }
+            }
+            }
+            return maxY + margin * 2;
             }
             */
         },
-		process=function(item) {
-			var i=0,
-			boxlen=boxes.length
-			tbox={},
-			//winnerbox={},
-			maxy=margin;
-			for(;i<boxlen;i+=1) {
-				tbox=boxes[i];
-				if((tbox.bottom +margin) > maxy && ((tbox.right > item.left-margin && tbox.right< item.right+margin) || (tbox.left > item.left-margin && tbox.left < item.right+margin) || (tbox.left <item.left && tbox.right > item.left))) {
-					//////console.log("using maxy from "+tbox.toString()+ " for " +item.toString());
-					maxy=tbox.bottom + margin;
-					//winnerbox=boxes[i];
-				}
-			}
-			////console.log("using maxy from "+winnerbox.toString()+ " for " +item.toString());
-			return maxy+margin;
+		process = function (newindexboxes, item) {
+		    var i = 0,
+			boxlen = newindexboxes.length
+		    tbox = {},
+		    //winnerbox={},
+			maxy = margin;
+		    for (; i < boxlen; i += 1) {
+		        tbox = newindexboxes[i];
+		        if ((tbox.bottom + margin) > maxy && ((tbox.right > item.left - margin && tbox.right < item.right + margin) || (tbox.left > item.left - margin && tbox.left < item.right + margin) || (tbox.left < item.left && tbox.right > item.left))) {
+		            //////console.log("using maxy from "+tbox.toString()+ " for " +item.toString());
+		            maxy = tbox.bottom + margin;
+		            //winnerbox=boxes[i];
+		        }
+		    }
+		    ////console.log("using maxy from "+winnerbox.toString()+ " for " +item.toString());
+		    return maxy + margin;
 		},
         resetPaint = function () {
             //l("resetpaint");
-			var i=0,
-			boxlength=boxes.length;
-			for(;i<boxlength;i+=1) {
-				boxes[i].reset();
-			}
+            //            var i = 0,
+            //			boxlength = boxes.length;
+            //            for (; i < boxlength; i += 1) {
+            //                boxes[i].reset();
+            //            }
             addToX = 0, addToY = 0, onRow = 0, nextRow = 0,
             containerWidth = $(container).width();
-			
+
         },
-    calculateBounds = function (newbox) {
+    calculateBounds = function (newindexboxes, newbox) {
         //l("calculateBounds");
         if (addToX === 0 && addToX !== margin) {
             addToX = margin;
         }
-        if ((addToX + newbox.width + margin*2) > containerWidth) {
+        if ((addToX + newbox.width + margin * 2) > containerWidth) {
             addToX = margin;
             onRow += 1;
         }
@@ -251,13 +255,16 @@ var boxManager = function (containerID) {
         newbox.onrow = onRow;
         newbox.setLeft(addToX);
         //newbox.setTop(getTopYForBox(newbox));
-		newbox.setTop(process(newbox));
+        newbox.setTop(process(newindexboxes, newbox));
         addToX = newbox.left + newbox.width + margin * 2;
         return newbox;
     },
         addBox = function (newbox) {
-            //newbox = calculateBounds(newbox);
-            boxes.push(newbox);
+            //always add boxes to index 0, the basis
+            if (boxes.length === 0) {
+                boxes.push(new Array());
+            }
+            boxes[0].push(newbox);
 
         },
     boxFactory = function (defaults) {
@@ -269,32 +276,57 @@ var boxManager = function (containerID) {
         currentID += 1;
         return tempbox;
     },
-    render = function () {
-        var boxlength = boxes.length,
+    //render gets the last perspective and paints it
+    render = function (index) {
+        var boxlength = 0,
         $container = $(container);
+        if (isNaN(index)) {
+            index = boxes.length - 1;
+        }
+        boxlength = boxes[index].length;
         $container.html("");
         for (iter = 0; iter < boxlength; iter += 1) {
-            $container.append(boxes[iter].getHtml());
+            $container.append(boxes[index][iter].getHtml());
         }
-		$container.find("div").hide().show("slow");
+        $container.find("div").hide().show("slow");
     },
-    paint = function () {
+    prep = function () {
         //l("paint");
         var i = 0,
-        boxlength = boxes.length;
+        boxlength = boxes[0].length,
+        newindexboxes = [],
+        newbox = {};
         resetPaint();
         for (; i < boxlength; i += 1) {
-            calculateBounds(boxes[i]);
+            //make the new perspective of the base data, 
+            //push it into the new perspective array
+            newbox = new box();
+            newbox = $.extend(newbox, boxes[0][i]);
+            newindexboxes.push(calculateBounds(newindexboxes, newbox));
         }
-        render();
+        //add the perspective to all of them
+        boxes.push(newindexboxes);
+    },
+    transistion = function (fromindex, toindex, itemfunction) {
+        var i = 0,
+        boxlen = boxes[fromindex].length;
+        for (; i < boxlen; i += 1) {
+            itemfunction(boxes[fromindex][i], boxes[toindex][i],container);
+        }
+    },
+    getCurrentIndex = function () {
+        return boxes.length - 1;
     };
 
     //return functions we select as the public api, not the private data
     return {
         addBox: addBox,
         boxFactory: boxFactory,
-        paint: paint,
-		boxes:boxes
+        prep: prep,
+        render: render,
+        transistion: transistion,
+        boxes: boxes,
+        getCurrentIndex: getCurrentIndex
     };
 
 };
@@ -302,11 +334,12 @@ var boxManager = function (containerID) {
 $(function () {
     var bm = new boxManager('container'),
     box = {},
-    iter = 0;
-    window.bm = bm;
-    for (; iter < 20; iter += 1) {
+    iter = 0,
+    timeout = false,
+    timeoutmax = 500;
 
-    }
+    window.bm = bm;
+
     var abox = bm.boxFactory({ width: 100, height: 200, html: "<p>1 hi</p>" });
     bm.addBox(abox);
 
@@ -355,9 +388,41 @@ $(function () {
     abox = bm.boxFactory({ width: 125, height: 250, html: "<p>16 hi</p>" });
     bm.addBox(abox);
 
-    bm.paint();
-	
-    $(window).resize(bm.paint);
+    bm.prep();
+    bm.render();
+
+    $(window).resize(function () {
+        var options = { distance: 10 };
+        clearTimeout(timeout);
+        timeout = setTimeout(function () {
+            var index = bm.getCurrentIndex();
+            bm.prep();
+            bm.transistion(index, bm.getCurrentIndex(), function (oldone, newone, context) {
+                $("#" + oldone.id, context).animate({
+                    top: newone.top,
+                    left: newone.left
+
+                }, 500, function () {
+//                    if (oldone.top !== newone.top) {
+//                        var distance = Math.floor(Math.random() * 11);
+//                        var times = Math.floor(Math.random() * 11);
+//                        var direction=oldone.top> newone.top ? "down":"up";
+//                        $(this).effect("bounce", { distance: distance,direction: direction, times:times }, 100);
+//                    } else
+                    if (oldone.left !== newone.left) {
+                        var distance = Math.floor(Math.random() * 11);
+                        var times = Math.floor(Math.random() * 11);
+                        var direction=oldone.left> newone.left ? "left":"right";
+
+                        $(this).effect("bounce", { distance: distance, times: times,direction:direction }, 100);
+
+                    }
+                });
+            });
+        }, timeoutmax);
+
+
+    });
 })
 
 
