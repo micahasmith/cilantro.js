@@ -395,28 +395,33 @@ $(function () {
         var options = { distance: 10 };
         clearTimeout(timeout);
         timeout = setTimeout(function () {
-            var index = bm.getCurrentIndex();
+            var index = bm.getCurrentIndex(),
+            easing = "easeInOutExpo";
             bm.prep();
             bm.transistion(index, bm.getCurrentIndex(), function (oldone, newone, context) {
                 $("#" + oldone.id, context).animate({
-                    top: newone.top,
-                    left: newone.left
+                    top: [newone.top, easing],
+                    left: [newone.left, easing]
 
                 }, 500, function () {
-//                    if (oldone.top !== newone.top) {
-//                        var distance = Math.floor(Math.random() * 11);
-//                        var times = Math.floor(Math.random() * 11);
-//                        var direction=oldone.top> newone.top ? "down":"up";
-//                        $(this).effect("bounce", { distance: distance,direction: direction, times:times }, 100);
-//                    } else
-                    if (oldone.left !== newone.left) {
-                        var distance = Math.floor(Math.random() * 11);
-                        var times = Math.floor(Math.random() * 11);
-                        var direction=oldone.left> newone.left ? "left":"right";
+                    //                    if (oldone.top !== newone.top) {
+                    //                        var distance = Math.floor(Math.random() * 11);
+                    //                        var times = Math.floor(Math.random() * 11);
+                    //                        var direction=oldone.top> newone.top ? "down":"up";
+                    //                        $(this).effect("bounce", { distance: distance,direction: direction, times:times }, 100);
+                    //                    } else
+                    //                    if (oldone.left !== newone.left) {
+                    ////                        var delta = newone.left - oldone.left;
+                    ////                        if (delta < 0) delta = delta * -1;
+                    //                        //var distance = Math.floor(delta / 10); 
+                    //                        var distance=Math.floor(Math.random() * 3),
+                    //                        //var times = Math.floor(delta / 10); 
+                    //                        times=Math.floor(Math.random() * 4),
+                    //                        direction = oldone.left > newone.left ? "left" : "right";
 
-                        $(this).effect("bounce", { distance: distance, times: times,direction:direction }, 100);
+                    //                        $(this).effect("bounce", { distance: distance, times: times, direction: direction }, 100);
 
-                    }
+                    //                    }
                 });
             });
         }, timeoutmax);
