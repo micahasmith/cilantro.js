@@ -95,6 +95,8 @@
     </style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+    <!--<script type="text/javascript" src="jquery-1.5.1.min.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.8.11.min.js"></script>-->
     <script type="text/javascript">
     //box object constructor
 function box() {
@@ -178,58 +180,42 @@ var boxManager = function (containerID) {
 		    return maxY + margin * 2;
 
 		},
-        getBoundingBoxesFor = function (baseBox, basis, secondarybasis, recurse) {
-            /*
-            var len = boxes.length,
-            compliment = {
-            left: "right",
-            top: "bottom",
-            right: "left",
-            bottom: "top"
-            },
-            antibasis=compliment[basis],
-            antisecondarybasis=compliment[secondarybasis],
-            maxBasis = 0;
-            iter = 0;
-            for (; iter < len; iter += 1) {
-            compBox = boxes[iter];
-            //if the base box's top is less than base box's bottom
-            //if the base box's left is less than comparison's box's left
-            //or 
-            if(baseBox[secondarybasis] < compBox[antisecondarybasis] && ( baseBox[basis] <= compBox[basis] && basebox[antibasis]<=compBox[antibasis])){
-            if (iterBox.height + iterBox.top > maxY) {
-            maxY = iterBox.height + iterBox.top;
-            }
-            }
-            }
-            return maxY + margin * 2;
-            }
-            */
+        //if test is above thisbox
+        isAbove=function(thisBox,test) {
+            if (thisBox.left >= test.left && thisBox.left + margin <= test.left + test.width) {
+		                    return true;
+		            }
+		            if (thisBox.right + margin >= test.left && thisBox.right + margin <= test.right) {
+		                    return true;
+		            }
         },
-		process = function (newindexboxes, item) {
-		    var i = 0,
+        isLeft = function(thisBox,test) {
+            if (thisBox.bottom >= test.bottom && thisBox.bottom + margin <= test.bottom + test.height) {
+		                    return true;
+		            }
+		            if (thisBox.top + margin >= test.bottom && thisBox.top + margin <= test.top) {
+		                    return true;
+		            }
+        },
+    process = function (newindexboxes, item) {
+        var i = 0,
 			boxlen = newindexboxes.length
-		    tbox = {},
-		    //winnerbox={},
+        tbox = {},
+        //winnerbox={},
 			maxy = margin;
-		    for (; i < boxlen; i += 1) {
-		        tbox = newindexboxes[i];
-		        if ((tbox.bottom + margin) > maxy && ((tbox.right > item.left - margin && tbox.right < item.right + margin) || (tbox.left > item.left - margin && tbox.left < item.right + margin) || (tbox.left < item.left && tbox.right > item.left))) {
-		            //////console.log("using maxy from "+tbox.toString()+ " for " +item.toString());
-		            maxy = tbox.bottom + margin;
-		            //winnerbox=boxes[i];
-		        }
-		    }
-		    ////console.log("using maxy from "+winnerbox.toString()+ " for " +item.toString());
-		    return maxy + margin;
-		},
+        for (; i < boxlen; i += 1) {
+            tbox = newindexboxes[i];
+            if ((tbox.bottom + margin) > maxy && ((tbox.right > item.left - margin && tbox.right < item.right + margin) || (tbox.left > item.left - margin && tbox.left < item.right + margin) || (tbox.left < item.left && tbox.right > item.left))) {
+                //////console.log("using maxy from "+tbox.toString()+ " for " +item.toString());
+                maxy = tbox.bottom + margin;
+                //winnerbox=boxes[i];
+            }
+        }
+        ////console.log("using maxy from "+winnerbox.toString()+ " for " +item.toString());
+        return maxy + margin;
+    },
         resetPaint = function () {
             //l("resetpaint");
-            //            var i = 0,
-            //			boxlength = boxes.length;
-            //            for (; i < boxlength; i += 1) {
-            //                boxes[i].reset();
-            //            }
             addToX = 0, addToY = 0, onRow = 0, nextRow = 0,
             containerWidth = $(container).width();
 
@@ -254,7 +240,6 @@ var boxManager = function (containerID) {
         }
         newbox.onrow = onRow;
         newbox.setLeft(addToX);
-        //newbox.setTop(getTopYForBox(newbox));
         newbox.setTop(process(newindexboxes, newbox));
         addToX = newbox.left + newbox.width + margin * 2;
         return newbox;
@@ -307,15 +292,19 @@ var boxManager = function (containerID) {
         //add the perspective to all of them
         boxes.push(newindexboxes);
     },
-    transistion = function (fromindex, toindex, itemfunction) {
+    transition = function (fromindex, toindex, itemfunction) {
         var i = 0,
         boxlen = boxes[fromindex].length;
         for (; i < boxlen; i += 1) {
-            itemfunction(boxes[fromindex][i], boxes[toindex][i],container);
+            itemfunction(boxes[fromindex][i], boxes[toindex][i], container);
         }
     },
     getCurrentIndex = function () {
         return boxes.length - 1;
+    },
+    alterBasis = function (alterationFunc) {
+        alterationFunc(boxes[0])
+
     };
 
     //return functions we select as the public api, not the private data
@@ -324,9 +313,10 @@ var boxManager = function (containerID) {
         boxFactory: boxFactory,
         prep: prep,
         render: render,
-        transistion: transistion,
+        transition: transition,
         boxes: boxes,
-        getCurrentIndex: getCurrentIndex
+        getCurrentIndex: getCurrentIndex,
+        alterBasis: alterBasis
     };
 
 };
@@ -340,16 +330,16 @@ $(function () {
 
     window.bm = bm;
 
-    var abox = bm.boxFactory({ width: 100, height: 200, html: "<p>1 hi</p>" });
+    var abox = bm.boxFactory({ width: 100, height: 100, html: "<p>1 hi</p>" });
     bm.addBox(abox);
 
-    abox = bm.boxFactory({ width: 130, height: 50, html: "<p>2 hi</p>" });
+    abox = bm.boxFactory({ width: 200, height: 200, html: "<p>2 hi</p>" });
     bm.addBox(abox);
 
-    abox = bm.boxFactory({ width: 55, height: 55, html: "<p>3 hi</p>" });
+    abox = bm.boxFactory({ width: 300, height: 300, html: "<p>3 hi</p>" });
     bm.addBox(abox);
 
-    abox = bm.boxFactory({ width: 300, height: 200, html: "<p>4 hi</p>" });
+    abox = bm.boxFactory({ width: 200, height: 200, html: "<p>4 hi</p>" });
     bm.addBox(abox);
 
     abox = bm.boxFactory({ width: 125, height: 250, html: "<p>5 hi</p>" });
@@ -398,35 +388,49 @@ $(function () {
             var index = bm.getCurrentIndex(),
             easing = "easeInOutExpo";
             bm.prep();
-            bm.transistion(index, bm.getCurrentIndex(), function (oldone, newone, context) {
+            bm.transition(index, bm.getCurrentIndex(), function (oldone, newone, context) {
                 $("#" + oldone.id, context).animate({
                     top: [newone.top, easing],
                     left: [newone.left, easing]
 
                 }, 500, function () {
-                    //                    if (oldone.top !== newone.top) {
-                    //                        var distance = Math.floor(Math.random() * 11);
-                    //                        var times = Math.floor(Math.random() * 11);
-                    //                        var direction=oldone.top> newone.top ? "down":"up";
-                    //                        $(this).effect("bounce", { distance: distance,direction: direction, times:times }, 100);
-                    //                    } else
-                    //                    if (oldone.left !== newone.left) {
-                    ////                        var delta = newone.left - oldone.left;
-                    ////                        if (delta < 0) delta = delta * -1;
-                    //                        //var distance = Math.floor(delta / 10); 
-                    //                        var distance=Math.floor(Math.random() * 3),
-                    //                        //var times = Math.floor(delta / 10); 
-                    //                        times=Math.floor(Math.random() * 4),
-                    //                        direction = oldone.left > newone.left ? "left" : "right";
-
-                    //                        $(this).effect("bounce", { distance: distance, times: times, direction: direction }, 100);
-
-                    //                    }
                 });
             });
         }, timeoutmax);
 
 
+    });
+    $("#container > div").click(function(){
+        var $t=$(this),        
+        state=$t.data("state") || "closed",
+        tid=$t.attr("id"),
+        index=parseInt(tid),
+        easing = "easeInOutExpo";
+        if(state==="closed") {
+            bm.alterBasis(function(basis){
+                basis[index].width+=100,
+                basis[index].height+=100
+            });
+            $t.data("state", "open");
+        } else {
+            bm.alterBasis(function (basis) {
+                basis[index].width -= 100,
+                basis[index].height -= 100
+            });
+            $t.data("state", "closed");
+        }
+        bm.prep();
+        bm.transition(index, bm.getCurrentIndex(), function (oldone, newone, context) {
+            
+                $("#" + oldone.id, context).animate({
+                    top: [newone.top, easing],
+                    left: [newone.left, easing],
+                    width:[newone.width,easing],
+                    height:[newone.height,easing]
+                }, 500, function () {
+                });
+            
+        });
     });
 })
 
