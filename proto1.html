@@ -139,20 +139,16 @@ var boxManager = function (containerID) {
     var basis = [],
 		oldperspective=[],
 		newperspective=[],
-        currentIndex = 0,
-        iter = 0,
-		iterBox = {},
         margin = 10,
-        containerWidth = 960,
-        containerHeight = 540,
         currentX = 0,
         currentY = 0,
         addToX = 0,
         addToY = 0,
 		nextAddToY = margin,
         currentID = 0,
-        container = document.getElementById("container"),
-		shiftDown = false,
+        container = $("container"),
+		containerWidth = container.width(),
+        containerHeight = container.height(),
 		onRow = 0,
 		nextRow = 0,
         tempbox = {},
@@ -197,7 +193,7 @@ var boxManager = function (containerID) {
         resetPaint = function () {
             //l("resetpaint");
             addToX = 0, addToY = 0, onRow = 0, nextRow = 0,
-            containerWidth = $(container).width();
+            containerWidth = container.width();
 
         },
     calculateBounds = function (newindexboxes, newbox) {
@@ -239,10 +235,11 @@ var boxManager = function (containerID) {
     //render gets the last perspective and paints it
     render = function () {
         var boxlength = 0,
+		iter=0,
         $container = $(container);
         boxlength = newperspective.length;
         $container.html("");
-        for (iter = 0; iter < boxlength; iter += 1) {
+        for (; iter < boxlength; iter += 1) {
             $container.append(newperspective[iter].getHtml(""));
         }
         $container.find("div").hide().show("slow");
@@ -285,8 +282,7 @@ var boxManager = function (containerID) {
         prep: prep,
         render: render,
         transition: transition,
-        alterBasis: alterBasis,
-		basis:basis
+        alterBasis: alterBasis
     };
 
 };
