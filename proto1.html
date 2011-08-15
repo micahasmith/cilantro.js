@@ -93,30 +93,36 @@
             zoom: 1;
         }
     </style>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
-    <!--<script type="text/javascript" src="jquery-1.5.1.min.js"></script>
-    <script type="text/javascript" src="jquery-ui-1.8.11.min.js"></script>-->
+    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>-->
+    <script type="text/javascript" src="jquery-1.5.1.min.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.8.11.min.js"></script>
     <script type="text/javascript">
     //box object constructor
 function box() {
     if(!(this instanceof box)) {
        return new box();
        }
-    this.width=0;
+   this.width = 0;
+
     this.height=0;
-    this.left=0;
+
+    this.left = 0;
     this.right=0;
     this.bottom=0;
     this.top=0;
     this.setLeft=function(val){ this.left=val;this.right=this.left+this.width;};
     this.setTop=function(val){ this.top=val; this.bottom=this.top+this.height;};
 
-       this.id='';
+       this.class='';
 	   this.onrow=0;
 	   this.html = '';
-	   this.getHtml= function () {
-	       return '<div class="box" id="'+this.id+'" style="position:absolute; top:' + this.top + 'px; left:' + this.left + 'px; width:' + this.width + 'px; height:' + this.height + 'px;">' + this.html + '</div>';
+	   this.getHtml = function () {
+	       //if (idPrefix === undefined) {
+	       //    idPrefix = "";
+	       //}
+		   //this.id=idPrefix+this.id;
+	       return '<div class="box" id="' + this.id + '" style="position:absolute; top:' + this.top + 'px; left:' + this.left + 'px; width:' + this.width + 'px; height:' + this.height + 'px;">' + this.html + '</div>';
 	   };
 	   this.toString=function() {
 		return "id="+this.id+" left="+this.left+" top="+this.top+" right="+this.right+" bottom="+this.bottom;
@@ -130,7 +136,9 @@ function box() {
 var boxManager = function (containerID) {
     //an array that contains at index 0 the base data
     //at other indexes, rendered versions of the base data
-    var boxes = [],
+    var basis = [],
+		oldperspective=[],
+		newperspective=[],
         currentIndex = 0,
         iter = 0,
 		iterBox = {},
@@ -152,34 +160,7 @@ var boxManager = function (containerID) {
 		getID = function () {
 		    return (currentID++).toString();
 		},
-		getTopYForBox = function (thetheboxes, thisBox) {
-
-		    //get the bottom y for theboxes where left is less than left+ margin
-		    //and right is greater than left
-		    if (thisBox.onrow === 0) { return margin; }
-		    var len = theboxes.length,
-				maxY = 0;
-		    iter = 0;
-		    for (; iter < len; iter += 1) {
-		        iterBox = theboxes[iter];
-		        if (iterBox.onrow < thisBox.onrow) {
-		            //if the box we're looking at's left edge is in be
-		            if (thisBox.left >= iterBox.left && thisBox.left + margin <= iterBox.left + iterBox.width) {
-		                if (iterBox.height + iterBox.top > maxY) {
-		                    maxY = iterBox.height + iterBox.top;
-		                }
-		            }
-		            if (thisBox.right + margin >= iterBox.left && thisBox.right + margin <= iterBox.right) {
-		                if (iterBox.height + iterBox.top > maxY) {
-		                    maxY = iterBox.height + iterBox.top;
-		                }
-		            }
-		        }
-
-		    }
-		    return maxY + margin * 2;
-
-		},
+		
         //if test is above thisbox
         isAbove=function(thisBox,test) {
             if (thisBox.left >= test.left && thisBox.left + margin <= test.left + test.width) {
@@ -201,7 +182,6 @@ var boxManager = function (containerID) {
         var i = 0,
 			boxlen = newindexboxes.length
         tbox = {},
-        //winnerbox={},
 			maxy = margin;
         for (; i < boxlen; i += 1) {
             tbox = newindexboxes[i];
@@ -245,12 +225,7 @@ var boxManager = function (containerID) {
         return newbox;
     },
         addBox = function (newbox) {
-            //always add boxes to index 0, the basis
-            if (boxes.length === 0) {
-                boxes.push(new Array());
-            }
-            boxes[0].push(newbox);
-
+            basis.push(newbox);
         },
     boxFactory = function (defaults) {
         tempbox = new box();
@@ -262,23 +237,20 @@ var boxManager = function (containerID) {
         return tempbox;
     },
     //render gets the last perspective and paints it
-    render = function (index) {
+    render = function () {
         var boxlength = 0,
         $container = $(container);
-        if (isNaN(index)) {
-            index = boxes.length - 1;
-        }
-        boxlength = boxes[index].length;
+        boxlength = newperspective.length;
         $container.html("");
         for (iter = 0; iter < boxlength; iter += 1) {
-            $container.append(boxes[index][iter].getHtml());
+            $container.append(newperspective[iter].getHtml(""));
         }
         $container.find("div").hide().show("slow");
     },
     prep = function () {
         //l("paint");
         var i = 0,
-        boxlength = boxes[0].length,
+        boxlength = basis.length,
         newindexboxes = [],
         newbox = {};
         resetPaint();
@@ -286,24 +258,23 @@ var boxManager = function (containerID) {
             //make the new perspective of the base data, 
             //push it into the new perspective array
             newbox = new box();
-            newbox = $.extend(newbox, boxes[0][i]);
+            newbox = $.extend(newbox, basis[i]);
             newindexboxes.push(calculateBounds(newindexboxes, newbox));
         }
         //add the perspective to all of them
-        boxes.push(newindexboxes);
+        oldperspective=newperspective;
+		newperspective=newindexboxes;
     },
-    transition = function (fromindex, toindex, itemfunction) {
+    transition = function (itemfunction) {
         var i = 0,
-        boxlen = boxes[fromindex].length;
+        boxlen = basis.length;
         for (; i < boxlen; i += 1) {
-            itemfunction(boxes[fromindex][i], boxes[toindex][i], container);
+            itemfunction(oldperspective[i], newperspective[i], container);
         }
     },
-    getCurrentIndex = function () {
-        return boxes.length - 1;
-    },
+    
     alterBasis = function (alterationFunc) {
-        alterationFunc(boxes[0])
+        alterationFunc(basis)
 
     };
 
@@ -314,9 +285,8 @@ var boxManager = function (containerID) {
         prep: prep,
         render: render,
         transition: transition,
-        boxes: boxes,
-        getCurrentIndex: getCurrentIndex,
-        alterBasis: alterBasis
+        alterBasis: alterBasis,
+		basis:basis
     };
 
 };
@@ -385,14 +355,12 @@ $(function () {
         var options = { distance: 10 };
         clearTimeout(timeout);
         timeout = setTimeout(function () {
-            var index = bm.getCurrentIndex(),
-            easing = "easeInOutExpo";
+            var easing = "easeInOutExpo";
             bm.prep();
-            bm.transition(index, bm.getCurrentIndex(), function (oldone, newone, context) {
+            bm.transition(function (oldone, newone, context) {
                 $("#" + oldone.id, context).animate({
                     top: [newone.top, easing],
                     left: [newone.left, easing]
-
                 }, 500, function () {
                 });
             });
@@ -420,7 +388,7 @@ $(function () {
             $t.data("state", "closed");
         }
         bm.prep();
-        bm.transition(index, bm.getCurrentIndex(), function (oldone, newone, context) {
+        bm.transition( function (oldone, newone, context) {
             
                 $("#" + oldone.id, context).animate({
                     top: [newone.top, easing],
