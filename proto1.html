@@ -93,10 +93,10 @@
             zoom: 1;
         }
     </style>
-    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>-->
-    <script type="text/javascript" src="jquery-1.5.1.min.js"></script>
-    <script type="text/javascript" src="jquery-ui-1.8.11.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+    <!--<script type="text/javascript" src="jquery-1.5.1.min.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.8.11.min.js"></script>-->
     <script type="text/javascript">
     //box object constructor
 function box() {
@@ -104,7 +104,6 @@ function box() {
        return new box();
        }
    this.width = 0;
-
     this.height=0;
 
     this.left = 0;
@@ -133,7 +132,7 @@ function box() {
     };
 };
 //boxmanager constructor function
-var boxManager = function (containerID) {
+var boxManager = function (options) {
     //an array that contains at index 0 the base data
     //at other indexes, rendered versions of the base data
     var basis = [],
@@ -146,7 +145,7 @@ var boxManager = function (containerID) {
         addToY = 0,
 		nextAddToY = margin,
         currentID = 0,
-        container = $("container"),
+        container = $("#container"),
 		containerWidth = container.width(),
         containerHeight = container.height(),
 		onRow = 0,
@@ -273,8 +272,17 @@ var boxManager = function (containerID) {
     alterBasis = function (alterationFunc) {
         alterationFunc(basis)
 
-    };
-
+    },
+	init=function(options){
+		var instance=$.extend(this,options);
+		this.container=$(instance.container);
+		this.width=instance.width;
+		this.height=instance.height;
+		this.margin=instance.margin;
+		this.container.css({"height":this.height,"width":this.width});
+		
+	};
+	init(options);
     //return functions we select as the public api, not the private data
     return {
         addBox: addBox,
@@ -288,7 +296,7 @@ var boxManager = function (containerID) {
 };
 
 $(function () {
-    var bm = new boxManager('container'),
+    var bm = new boxManager({container:"#container"}),
     box = {},
     iter = 0,
     timeout = false,
