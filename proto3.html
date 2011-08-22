@@ -93,41 +93,40 @@
             zoom: 1;
         }
     </style>
+    <!--
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
-    <!--<script type="text/javascript" src="jquery-1.5.1.min.js"></script>
-    <script type="text/javascript" src="jquery-ui-1.8.11.min.js"></script>-->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>-->
+    <script type="text/javascript" src="jquery-1.5.1.min.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.8.11.min.js"></script>
 	<script type="text/javascript" src="cilantro-0.1.js" ></script>
     <script type="text/javascript">
     //box object constructor
 
 
-$(function () {
-    var bm= new ALLANDALL.Cilantro.Manager(),
-    box = {},
-    iter = 0,
-    timeout = false,
-    timeoutmax = 500;
+        $(function () {
+            window.bm = new ALLANDALL.Cilantro.Manager({ containerID: "wrapper" }),
+            box = {},
+            iter = 0,
+            timeout = false,
+            timeoutmax = 500;
 
-    
 
-//    var abox = bm.boxFactory({ width: 100, height: 100, html: "<p>1 hi</p>" });
-//    bm.addBox(abox);
-	
-	
-    
-})
+            var abox = bm.boxFactory({ width: 100, height: 100, html: "<p>1 hi</p>" });
+            bm.add(abox);
+
+            bm.prepare();
+            bm.paint();
+        });
 
 
 		</script>
 </head>
 <body>
     <div class="page">
-        <h1 class="header">Proto2</h1>
+        <h1 class="header">Proto3</h1>
     </div>
     <div id="wrapper">
-        <div id="container" class="container">
-        </div>
+        
     </div>
 </body>
 </html>
