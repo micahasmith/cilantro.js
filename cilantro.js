@@ -6,6 +6,7 @@ $.fn.cilantro=function(options){
 	defaults=$.extend({container:me},options),
 	bm=new $.fn.cilantroboxManager(defaults);
 	me.data("cilantro",bm);
+	
 	return this;
 };
 $.fn.cilantrobox = function(){

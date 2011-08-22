@@ -2,36 +2,46 @@
  * @author micahsmith
  */
 var ALLANDALL = ALLANDALL || {};
+ALLANDALL.Utils={};
+ALLANDALL.Utils.extend=$.extend;
 ALLANDALL.Cilantro={};
 ALLANDALL.Cilantro.PositionStrategies={};
-
-ALLANDALL.Cilantro.Manager=new function(){
+ALLANDALL.Cilantro.Memento=function(){
+	if(!(this instanceof ALLANDALL.Cilantro.Memento)){
+		return new ALLANDALL.Cilantro.Memento();
+	}
+	this.containerID="container";
+		this.container=document.getElementById(containerID);
+		this.basis = [];
+		this.oldperspective=[];
+		this.newperspective=[];
+        this.margin = [10,10];
+        this.currentX = 0;
+        this.currentY = 0;
+        this.addToX = 0;
+        this.addToY = 0;
+		this.nextAddToY = margin;
+        this.currentID = 0;
+		this.containerWidth = container.clientWidth();
+        this.containerHeight = container.clientHeight();
+		this.onRow = 0;
+		this.nextRow = 0;
+        this.tempbox = {};
+		this.renderFunction=ALLANDALL.Cilantro.PositionStrategies.PlaceFirstTopLeft;
+}
+ALLANDALL.Cilantro.Manager=function(options){
 	if(!(this instanceof ALLANDALL.Cilantro.Manager)){
 		return new ALLANDALL.Cilantro.Manager();
 	}
-	var defaults={
-		containerID="container",
-		container=document.getElementById(containerID),
-		basis = [],
-		oldperspective=[],
-		newperspective=[],
-        margin = [10,10],
-        currentX = 0,
-        currentY = 0,
-        addToX = 0,
-        addToY = 0,
-		nextAddToY = margin,
-        currentID = 0,
-		containerWidth = container.clientWidth(),
-        containerHeight = container.clientHeight(),
-		onRow = 0,
-		nextRow = 0,
-        tempbox = {},
-	};
+	this.state=new ALLANDALL.Cilantro.Memento();
+	this.state=$.extend(this);
 };
-ALLANDALL.Cilantro.Box=function box() {
-    if(!(this instanceof box)) {
-       return new box();
+ALLANDALL.Cilantro.Manager.prototype.prepare=function() {
+	
+};
+ALLANDALL.Cilantro.Box=function() {
+    if(!(this instanceof ALLANDALL.Cilantro.Box)) {
+       return new ALLANDALL.Cilantro.Box();
        }
    this.width = 0;
     this.height=0;
@@ -54,14 +64,16 @@ ALLANDALL.Cilantro.Box=function box() {
         this.left = 0, this.top = 0, this.bottom=0,this.right=0, this.onrow = 0;
     };
 };
-ALLANDAll.Cilantro.prototype.init(options) {
-	this.defaults=$(this.defaults,options);
+ALLANDALL.Cilantro.Manager.prototype.init=function(options) {
+	this.state=ALLANDALL.Utils.extend(this.state,options);
 }
 ALLANDALL.Cilantro.PositionStrategies.GetFirstTopY=function() {
 	
 };
-ALLANDALL.Cilantro.PositionStrategies.PlaceFirstTopLeft = function(managerState, newindexboxes, newbox){
-	
+ALLANDALL.Cilantro.PositionStrategies.PlaceFirstTopLeft = function(state){
+	var basis=state.basis,
+	datalen=basis.length,
+	iter=0;
 	
 	for (; iter < datalen; iter += 1) {
 		if (this.addToX === 0 && this.addToX !== this.margin) {
@@ -86,5 +98,4 @@ ALLANDALL.Cilantro.PositionStrategies.PlaceFirstTopLeft = function(managerState,
 		this.addToX = this.newbox.left + this.newbox.width + this.margin * 2;
 		return newbox;
 	}
-}
 }
