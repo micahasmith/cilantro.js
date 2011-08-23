@@ -8,20 +8,21 @@ ALLANDALL.Cilantro={};
 ALLANDALL.Cilantro.PositionStrategies = {};
 ALLANDALL.Cilantro.PaintStrategies = {};
 ALLANDALL.Cilantro.Memento = function () {
+    var container = null;
     if (!(this instanceof ALLANDALL.Cilantro.Memento)) {
         return new ALLANDALL.Cilantro.Memento();
     }
     this.containerID = "";
-    this.container = null;
+    
     this.getContainer = function () {
-        if (this.container === null) {
-            this.container = document.getElementById(this.containerID);
+        if (container === null) {
+            container = document.getElementById(this.containerID);
         }
-        return this.container;
+        return container;
     };
     this.getContainer();
-    this.containerWidth = this.getContainer() === null ? 0 : this.container.clientWidth;
-    this.containerHeight = this.getContainer() === null ? 0 : this.container.clientHeight;
+    this.containerWidth = this.getContainer() === null ? 0 : container.clientWidth;
+    this.containerHeight = this.getContainer() === null ? 0 : container.clientHeight;
 
     this.basis = [];
     this.oldperspective = [];
@@ -31,7 +32,7 @@ ALLANDALL.Cilantro.Memento = function () {
 
     this.boxPrototype = undefined;
     this.currentID = 0;
-    this.renderFunction = ALLANDALL.Cilantro.PositionStrategies.placeFirstTopLeft;
+    this.prepFunction = ALLANDALL.Cilantro.PositionStrategies.placeFirstTopLeft;
     this.paintFunction = ALLANDALL.Cilantro.PaintStrategies.simple;
 }
 ALLANDALL.Cilantro.Manager = function (options) {
@@ -44,21 +45,21 @@ ALLANDALL.Cilantro.Manager = function (options) {
     this.init();
 };
 ALLANDALL.Cilantro.Manager.prototype.init = function () {
-    if (this.state.container !== null) {
-        this.state.container.appendChild(this.getContainerPrototype());
+    if (this.state.getContainer() !== null) {
+        this.state.getContainer().appendChild(this.getContainerPrototype());
     }
 };
 ALLANDALL.Cilantro.Manager.prototype.getContainerPrototype = function () {
-    if (this.state.container !== null) {
-        this.state.container.appendChild(this.getContainerPrototype());
-    }
+    var c = document.createElement("div");
+    c.style.position = "relative";
+    return c;
 };
 ALLANDALL.Cilantro.Manager.prototype.boxFactory = function (options) {
     var tempbox = new ALLANDALL.Cilantro.Box(),
     defaults = this.state.boxPrototype,
     containerID = this.state.containerID;
 
-    if (defaults !== 'undefined') {
+    if (defaults !== undefined) {
         tempbox = ALLANDALL.Utils.extend(tempbox, defaults);
     }
     tempbox = ALLANDALL.Utils.extend(tempbox, options);
@@ -69,21 +70,28 @@ ALLANDALL.Cilantro.Manager.prototype.boxFactory = function (options) {
 ALLANDALL.Cilantro.Manager.prototype.add = function (box) {
     this.state.basis.push(box);
 };
-ALLANDALL.Cilantro.Manager.prototype.prepare = function () {
+ALLANDALL.Cilantro.Manager.prototype.prepare = function (prepFunc) {
+    var rFunc = this.state.prepFunction;
+    if (prepFunc !== undefined) {
+        rFunc = prepFunc;
+    }
     this.state.oldperspective = this.state.newperspective;
     this.state.newperspective = [];
-    this.state.renderFunction(this.state);
+    rFunc(this.state);
 };
 ALLANDALL.Cilantro.Manager.prototype.paint = function () {
     var iter = 0,
     boxes = this.state.newperspective,
     boxlen = boxes.length,
     paintfunc = this.state.paintFunction,
+    c = this.state.getContainer().lastChild,
     html = document.createDocumentFragment();
 
     for (; iter < boxlen; iter += 1) {
         html.appendChild(paintfunc(boxes[iter]));
     }
+    c.innerHtml = "";
+    c.appendChild(html);
 };
 ALLANDALL.Cilantro.Box=function() {
     if(!(this instanceof ALLANDALL.Cilantro.Box)) {
@@ -175,5 +183,15 @@ ALLANDALL.Cilantro.PositionStrategies.getFirstTopY = function (state, box) {
 };
 
 ALLANDALL.Cilantro.PaintStrategies.simple = function (box) {
-    
+    //return '<div class="box" id="' + this.id + '" style="position:absolute; top:' + this.top + 'px; left:' + this.left + 'px; width:' + this.width + 'px; height:' + this.height + 'px;">' + this.html + '</div>';
+
+    var e = document.createElement("div");
+    e.id = box.id;
+    e.style.top = box.top + "px";
+    e.style.left = box.left + "px";
+    e.style.width = box.width + "px";
+    e.style.height = box.height + "px";
+    e.style.position = "absolute";
+    e.className += "box";
+    return e;
 }
