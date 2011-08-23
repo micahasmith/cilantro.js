@@ -9,7 +9,7 @@ One thing that cilantro.js does very well is tiling. First you must create a `Ma
 
 Here is a basic example:
 
-`<div id="wrapper"></div>
+    <div id="wrapper"></div>
     <script type="text/javascript">
         $(function () {
             //setting what extend function i want to use, could be jquery or underscore
@@ -38,7 +38,7 @@ Here is a basic example:
             //this actually writes the data into the DOM
             bm.paint();
         });
-	</script>`
+    </script>`
 	
 The end result is tiled boxes, automatically positioned in the first available space.
 
@@ -53,8 +53,8 @@ Specifically, cilantro.js has a two stage memory:
  
 Here is a quick example of how to transition the previous "basic" example to repaint via animation on a `window.resize` event.
 
-`<div id="wrapper"></div>
-    <script type="text/javascript">
+    <div id="wrapper"></div>
+        <script type="text/javascript">
         $(function () {
             //setting what extend function i want to use, could be jquery or underscore
             ALLANDALL.Utils.extend = $.extend;
@@ -110,4 +110,4 @@ Here is a quick example of how to transition the previous "basic" example to rep
 
             });
         });
-	</script>`
+    </script>
