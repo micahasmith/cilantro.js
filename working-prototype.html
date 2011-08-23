@@ -61,6 +61,7 @@
         {
             background-color: gray;
         }
+        
         /* http://sonspring.com/journal/clearing-floats */.clear
         {
             clear: both;
@@ -96,25 +97,33 @@
     
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
-    <!--<script type="text/javascript" src="jquery-1.5.1.min.js"></script>
-    <script type="text/javascript" src="jquery-ui-1.8.11.min.js"></script>-->
 	<script type="text/javascript" src="src/cilantro-0.1.js" ></script>
     <script type="text/javascript">
-    //box object constructor
-
-
         $(function () {
+            //setting what extend function i want to use
+            ALLANDALL.Utils.extend = $.extend;
+
+            //i'm attaching the manager at the window so you can check it out in the firebugs
+            ////the manager holds all the data, its the api
             window.bm = new ALLANDALL.Cilantro.Manager({ containerID: "wrapper" }),
             box = {},
             iter = 0,
-            timeout = false,
-            timeoutmax = 500;
+            randint = 0;
 
+            for (; iter < 10; iter += 1) {
+                //get some randomization in on the sizes
+                var randint = Math.floor(Math.random() * 5) * 25;
+                //create a box using the factory method
+                box = bm.boxFactory({ width: (100 + randint), height: (100 + randint), html: "<p><h6>" + (iter + 1).toString() + "</h6> hi</p>" });
+                //add it into the content manager
+                bm.add(box);
+            }
 
-            var abox = bm.boxFactory({ width: 100, height: 100, html: "<p>1 hi</p>" });
-            bm.add(abox);
-
+            //prepare uses the prep function to set the object's properties,
+            //in this case (and by default) placing it in the first top left position
             bm.prepare();
+
+            //this actually writes the data into the DOM
             bm.paint();
         });
 

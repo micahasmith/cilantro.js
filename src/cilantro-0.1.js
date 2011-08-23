@@ -3,7 +3,7 @@
  */
 var ALLANDALL = ALLANDALL || {};
 ALLANDALL.Utils={};
-ALLANDALL.Utils.extend=$.extend;
+ALLANDALL.Utils.extend = function () { };
 ALLANDALL.Cilantro={};
 ALLANDALL.Cilantro.PositionStrategies = {};
 ALLANDALL.Cilantro.PaintStrategies = {};
@@ -21,8 +21,8 @@ ALLANDALL.Cilantro.Memento = function () {
         return container;
     };
     this.getContainer();
-    this.containerWidth = this.getContainer() === null ? 0 : container.clientWidth;
-    this.containerHeight = this.getContainer() === null ? 0 : container.clientHeight;
+    this.getContainerWidth = function() { return this.getContainer().clientWidth;};
+    this.getContainerHeight = function(){ return this.getContainer().clientHeight;};
 
     this.basis = [];
     this.oldperspective = [];
@@ -131,8 +131,8 @@ ALLANDALL.Cilantro.PositionStrategies.placeFirstTopLeft = function (state) {
     xMargin = state.margin[1],
     onRow = 0,
     nextRow=0,
-    containerWidth = state.containerWidth,
-    containerHeight = state.containerHeight,
+    containerWidth = state.getContainerWidth(),
+    containerHeight = state.getContainerHeight(),
     newbox = {},
     newperspective = state.newperspective;
 
@@ -172,7 +172,7 @@ ALLANDALL.Cilantro.PositionStrategies.getFirstTopY = function (state, box) {
 	maxy = yMargin;
     for (; i < boxlen; i += 1) {
         tbox = newindexboxes[i];
-        if ((tbox.bottom + yMargin) > maxy && ((tbox.right > item.left - xMargin && tbox.right < item.right + xMargin) || (tbox.left > item.left - margin && tbox.left < item.right + margin) || (tbox.left < item.left && tbox.right > item.left))) {
+        if ((tbox.bottom + yMargin) > maxy && ((tbox.right > box.left - xMargin && tbox.right < box.right + xMargin) || (tbox.left > box.left - xMargin && tbox.left < box.right + xMargin) || (tbox.left < box.left && tbox.right > box.left))) {
             //////console.log("using maxy from "+tbox.toString()+ " for " +item.toString());
             maxy = tbox.bottom + yMargin;
             //winnerbox=boxes[i];
