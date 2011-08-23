@@ -93,6 +93,17 @@ ALLANDALL.Cilantro.Manager.prototype.paint = function () {
     c.innerHtml = "";
     c.appendChild(html);
 };
+ALLANDALL.Cilantro.Manager.prototype.transition = function (itemFunction) {
+    var i = 0,
+        state = this.state,
+        boxlen = state.basis.length,
+        oldp = state.oldperspective,
+        newp = state.newperspective;
+
+    for (; i < boxlen; i += 1) {
+        itemFunction(oldp[i], newp[i], state);
+    }
+};
 ALLANDALL.Cilantro.Box=function() {
     if(!(this instanceof ALLANDALL.Cilantro.Box)) {
        return new ALLANDALL.Cilantro.Box();

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-    <title>cilantro.js</title>
+    <title>cilantro.js | transitioning</title>
     <style type="text/css">
         p,h1,h2,h3,h4,h5,input,em,strong{font-family: Tahoma, Helvetica, Arial, Sans-Serif;}
         .header
@@ -97,12 +97,12 @@
     
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="src/cilantro-0.1.js" ></script>
+	<script type="text/javascript" src="../src/cilantro-0.1.js" ></script>
     
 </head>
 <body>
     <div class="page">
-        <h1 class="header">cilantro.js</h1>
+        <h1 class="header">cilantro.js | transitioning</h1>
     </div>
     <div id="wrapper"></div>
     <script type="text/javascript">
@@ -115,7 +115,9 @@
             window.bm = new ALLANDALL.Cilantro.Manager({ containerID: "wrapper" }),
             box = {},
             iter = 0,
-            randint = 0;
+            randint = 0,
+            timeout = false,
+            timeoutmax = 500;
 
             for (; iter < 17; iter += 1) {
                 //get some randomization in on the sizes
@@ -132,6 +134,32 @@
 
             //this actually writes the data into the DOM
             bm.paint();
+
+            //now is where all the magic occurrs!
+            ////make the box auto paint on window resizing with some sweet easing
+            $(window).resize(function () {
+                //jquery ui easing options
+                var easing = "easeInOutExpo",
+                //i'm going to pass this function into the manager's transition function,
+                ////functional programming-style
+                transitionFunc = function (oldone, newone, state) {
+                    $("#" + oldone.id, state.getContainer()).animate({
+                        top: [newone.top, easing],
+                        left: [newone.left, easing]
+                    }, 500, function () { });
+                };
+
+                //using timeout for some throttling
+                clearTimeout(timeout);
+                timeout = setTimeout(function () {
+                    //calling prepare() will reposition the data for the new container width
+                    bm.prepare();
+                    //and transistion will paint it using the specified transistion
+                    bm.transition(transitionFunc);
+                }, timeoutmax);
+
+
+            });
         });
 		</script>
 </body>
