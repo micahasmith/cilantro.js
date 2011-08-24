@@ -40,7 +40,7 @@ ALLANDALL.Cilantro.Manager = function (options) {
         return new ALLANDALL.Cilantro.Manager(options);
     }
     this.state = new ALLANDALL.Cilantro.Memento();
-    this.state = $.extend(this.state, options);
+    this.state = ALLANDALL.Utils.extend(this.state, options);
     //initialization work
     this.init();
 };
@@ -104,29 +104,23 @@ ALLANDALL.Cilantro.Manager.prototype.transition = function (itemFunction) {
         itemFunction(oldp[i], newp[i], state);
     }
 };
-ALLANDALL.Cilantro.Box=function() {
-    if(!(this instanceof ALLANDALL.Cilantro.Box)) {
-       return new ALLANDALL.Cilantro.Box();
-       }
-   this.width = 0;
-    this.height=0;
+ALLANDALL.Cilantro.Box = function () {
+    if (!(this instanceof ALLANDALL.Cilantro.Box)) {
+        return new ALLANDALL.Cilantro.Box();
+    }
+    this.width = 0;
+    this.height = 0;
     this.left = 0;
-    this.right=0;
-    this.bottom=0;
-    this.top=0;
-    this.setLeft=function(val){ this.left=val;this.right=this.left+this.width;};
-    this.setTop=function(val){ this.top=val; this.bottom=this.top+this.height;};
-       this.class='';
-	   this.onrow=0;
-	   this.html = '';
-	   this.getHtml = function () {
-	       return '<div class="box" id="' + this.id + '" style="position:absolute; top:' + this.top + 'px; left:' + this.left + 'px; width:' + this.width + 'px; height:' + this.height + 'px;">' + this.html + '</div>';
-	   };
-	   this.toString=function() {
-		return "id="+this.id+" left="+this.left+" top="+this.top+" right="+this.right+" bottom="+this.bottom;
-	   };
+    this.right = 0;
+    this.bottom = 0;
+    this.top = 0;
+    this.setLeft = function (val) { this.left = val; this.right = this.left + this.width; };
+    this.setTop = function (val) { this.top = val; this.bottom = this.top + this.height; };
+    this.class = '';
+    this.onrow = 0;
+    this.html = '';
     this.reset = function () {
-        this.left = 0, this.top = 0, this.bottom=0,this.right=0, this.onrow = 0;
+        this.left = 0, this.top = 0, this.bottom = 0, this.right = 0, this.onrow = 0;
     };
 };
 
