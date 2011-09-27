@@ -84,13 +84,13 @@ ALLANDALL.Cilantro.Manager.prototype.paint = function () {
     boxes = this.state.newperspective,
     boxlen = boxes.length,
     paintfunc = this.state.paintFunction,
-    c = this.state.getContainer().lastChild,
+    c = this.state.getContainer(),
     html = document.createDocumentFragment();
 
     for (; iter < boxlen; iter += 1) {
         html.appendChild(paintfunc(boxes[iter]));
     }
-    c.innerHtml = "";
+    c.innerHTML = "";
     c.appendChild(html);
 };
 ALLANDALL.Cilantro.Manager.prototype.transition = function (itemFunction) {
@@ -116,7 +116,6 @@ ALLANDALL.Cilantro.Box = function () {
     this.top = 0;
     this.setLeft = function (val) { this.left = val; this.right = this.left + this.width; };
     this.setTop = function (val) { this.top = val; this.bottom = this.top + this.height; };
-    this.class = '';
     this.onrow = 0;
     this.html = '';
     this.reset = function () {
@@ -198,5 +197,6 @@ ALLANDALL.Cilantro.PaintStrategies.simple = function (box) {
     e.style.height = box.height + "px";
     e.style.position = "absolute";
     e.className += "box";
+    e.innerHTML = box.html;
     return e;
 }
